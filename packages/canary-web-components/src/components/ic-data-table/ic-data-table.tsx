@@ -747,6 +747,7 @@ export class DataTable {
           tabIndex={scrollable ? 0 : null}
           onScroll={updateScrollOffset}
         >
+          {isSlotUsed(this.el, "title-bar") && <slot name="title-bar" />}
           <table>
             <caption class="table-caption">{caption}</caption>
             {!hideColumnHeaders && (
