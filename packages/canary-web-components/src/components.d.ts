@@ -418,6 +418,28 @@ export namespace Components {
          */
         "value"?: string | string[];
     }
+    interface IcTitleBar {
+        /**
+          * The description that is displayed below the `header` and `metadata`. Can be overridden with the `description` slot.
+         */
+        "description"?: string;
+        /**
+          * If `true`, will apply a background colour and a bottom border to the title bar.
+         */
+        "fullWidth"?: boolean;
+        /**
+          * The header of the title bar. Can be overridden with the `header` slot. If used with an ic-data-table it will default to the table's `caption` unless overridden.
+         */
+        "header"?: string;
+        /**
+          * When `true`, the density select will not be rendered.
+         */
+        "hideDensitySelect"?: boolean;
+        /**
+          * The metadata displayed next to the `header`.
+         */
+        "metadata"?: string;
+    }
 }
 export interface IcDataTableCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -438,6 +460,10 @@ export interface IcPaginationBarCustomEvent<T> extends CustomEvent<T> {
 export interface IcSelectWithMultiCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLIcSelectWithMultiElement;
+}
+export interface IcTitleBarCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLIcTitleBarElement;
 }
 declare global {
     interface HTMLIcDataTableElementEventMap {
@@ -540,12 +566,30 @@ declare global {
         prototype: HTMLIcSelectWithMultiElement;
         new (): HTMLIcSelectWithMultiElement;
     };
+    interface HTMLIcTitleBarElementEventMap {
+        "icTableDensityUpdate": IcDensityUpdateEventDetail;
+    }
+    interface HTMLIcTitleBarElement extends Components.IcTitleBar, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLIcTitleBarElementEventMap>(type: K, listener: (this: HTMLIcTitleBarElement, ev: IcTitleBarCustomEvent<HTMLIcTitleBarElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLIcTitleBarElementEventMap>(type: K, listener: (this: HTMLIcTitleBarElement, ev: IcTitleBarCustomEvent<HTMLIcTitleBarElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLIcTitleBarElement: {
+        prototype: HTMLIcTitleBarElement;
+        new (): HTMLIcTitleBarElement;
+    };
     interface HTMLElementTagNameMap {
         "ic-data-table": HTMLIcDataTableElement;
         "ic-data-table-title-bar": HTMLIcDataTableTitleBarElement;
         "ic-menu-with-multi": HTMLIcMenuWithMultiElement;
         "ic-pagination-bar": HTMLIcPaginationBarElement;
         "ic-select-with-multi": HTMLIcSelectWithMultiElement;
+        "ic-title-bar": HTMLIcTitleBarElement;
     }
 }
 declare namespace LocalJSX {
@@ -989,12 +1033,39 @@ declare namespace LocalJSX {
          */
         "value"?: string | string[];
     }
+    interface IcTitleBar {
+        /**
+          * The description that is displayed below the `header` and `metadata`. Can be overridden with the `description` slot.
+         */
+        "description"?: string;
+        /**
+          * If `true`, will apply a background colour and a bottom border to the title bar.
+         */
+        "fullWidth"?: boolean;
+        /**
+          * The header of the title bar. Can be overridden with the `header` slot. If used with an ic-data-table it will default to the table's `caption` unless overridden.
+         */
+        "header"?: string;
+        /**
+          * When `true`, the density select will not be rendered.
+         */
+        "hideDensitySelect"?: boolean;
+        /**
+          * The metadata displayed next to the `header`.
+         */
+        "metadata"?: string;
+        /**
+          * Emitted when the table density select value is changed.
+         */
+        "onIcTableDensityUpdate"?: (event: IcTitleBarCustomEvent<IcDensityUpdateEventDetail>) => void;
+    }
     interface IntrinsicElements {
         "ic-data-table": IcDataTable;
         "ic-data-table-title-bar": IcDataTableTitleBar;
         "ic-menu-with-multi": IcMenuWithMulti;
         "ic-pagination-bar": IcPaginationBar;
         "ic-select-with-multi": IcSelectWithMulti;
+        "ic-title-bar": IcTitleBar;
     }
 }
 export { LocalJSX as JSX };
@@ -1006,6 +1077,7 @@ declare module "@stencil/core" {
             "ic-menu-with-multi": LocalJSX.IcMenuWithMulti & JSXBase.HTMLAttributes<HTMLIcMenuWithMultiElement>;
             "ic-pagination-bar": LocalJSX.IcPaginationBar & JSXBase.HTMLAttributes<HTMLIcPaginationBarElement>;
             "ic-select-with-multi": LocalJSX.IcSelectWithMulti & JSXBase.HTMLAttributes<HTMLIcSelectWithMultiElement>;
+            "ic-title-bar": LocalJSX.IcTitleBar & JSXBase.HTMLAttributes<HTMLIcTitleBarElement>;
         }
     }
 }
