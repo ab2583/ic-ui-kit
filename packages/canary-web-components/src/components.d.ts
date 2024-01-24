@@ -107,6 +107,10 @@ export namespace Components {
          */
         "stickyRowHeaders"?: boolean;
         /**
+          * For long text in cells that aren't set to textWrap, define how they should be truncated. `tooltip` adds a tooltip for the rest of the text, `showHide` adds the ic-typography "See More"/"See Less" buttons.
+         */
+        "truncationPattern"?: IcDataTableTruncationTypes;
+        /**
           * If `true`, the table displays a linear loading indicator below the header row to indicate an updating state.
          */
         "updating"?: boolean;
@@ -681,6 +685,10 @@ declare namespace LocalJSX {
           * If `true`, row headers will remain to the left when scrolling horizontally.
          */
         "stickyRowHeaders"?: boolean;
+        /**
+          * For long text in cells that aren't set to textWrap, define how they should be truncated. `tooltip` adds a tooltip for the rest of the text, `showHide` adds the ic-typography "See More"/"See Less" buttons.
+         */
+        "truncationPattern"?: IcDataTableTruncationTypes;
         /**
           * If `true`, the table displays a linear loading indicator below the header row to indicate an updating state.
          */
