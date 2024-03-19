@@ -324,7 +324,6 @@ describe("IcDataTables", () => {
       );
 
       cy.checkHydrated(DATA_TABLE_SELECTOR);
-
       cy.compareSnapshot({
         name: "specified-row-height",
         testThreshold: setThresholdBasedOnEnv(0.094),
