@@ -5,5 +5,5 @@ export default defineConfig({
   component: {
     ...config.component,
     supportFile: "../react/cypress/support/index.ts",
-  }
+  },
 } as Cypress.ConfigOptions) 
