@@ -554,11 +554,36 @@ export class Menu {
     }
   };
 
+  private showFocusStateOnOptions = (showFocus: boolean) => {
+    const optionEls = this.el.querySelectorAll("li");
+
+    optionEls.forEach((option) =>
+      showFocus
+        ? option.classList.add("focused-option")
+        : option.classList.remove("focused-option")
+    );
+  };
+
+  private getHighlightedOptionIndex = (value: string) => {
+    const menuOptions = this.getMenuOptions();
+
+    const highlightedOptionIndex = menuOptions.findIndex(
+      (option) => option[this.valueField] === this.optionHighlighted
+    );
+
+    return highlightedOptionIndex;
+  }
+
   // Determines keyboard behaviour when selection is manual (i.e. when you have to press Enter to select an option)
   private manualSetInputValueKeyboardOpen = (event: KeyboardEvent) => {
     const menuOptions = this.getMenuOptions();
 
-    this.keyboardNav = false;
+    if (
+      !event.shiftKey &&
+      !((isMacDevice() && event.metaKey) || (!isMacDevice() && event.ctrlKey))
+    ) {
+      this.keyboardNav = false;
+    }
 
     const highlightedOptionIndex = menuOptions.findIndex(
       (option) => option[this.valueField] === this.optionHighlighted
@@ -581,6 +606,9 @@ export class Menu {
     } else {
       switch (event.key) {
         case "ArrowDown":
+          // if (event.shiftKey) {
+          //   console.log("multi-select");
+          // }
           this.keyboardNav = true;
           this.arrowBehaviour(event);
           if (this.multiOptionClicked) {
@@ -589,10 +617,30 @@ export class Menu {
             this.setHighlightedOption(clickedMultiOptionIndex);
             this.multiOptionClicked = null;
           } else if (highlightedOptionIndex < menuOptions.length - 1) {
+            if (event.shiftKey) {
+              this.selectHighlightedOption(
+                event.target,
+                menuOptions,
+                highlightedOptionIndex
+              );
+            }
+
+            console.log("BEFORE " + highlightedOptionIndex);
+
             this.setHighlightedOption(highlightedOptionIndex + 1);
             this.menuOptionId.emit({
               optionId: getOptionId(highlightedOptionIndex + 1),
             });
+
+            console.log("AFTER " + this.optionHighlighted);
+
+            if (event.shiftKey) {
+              this.selectHighlightedOption(
+                event.target,
+                menuOptions,
+                this.getHighlightedOptionIndex(this.optionHighlighted),
+              );
+            }
           } else {
             this.setHighlightedOption(0);
             this.menuOptionId.emit({
@@ -601,6 +649,7 @@ export class Menu {
           }
           this.preventIncorrectTabOrder = false;
           this.focusFromSearchKeypress = false;
+          this.showFocusStateOnOptions(false);
           break;
         case "ArrowUp":
           this.keyboardNav = true;
@@ -626,6 +675,7 @@ export class Menu {
           }
           this.preventIncorrectTabOrder = false;
           this.focusFromSearchKeypress = false;
+          this.showFocusStateOnOptions(false);
           break;
         case "Home":
           this.keyboardNav = true;
@@ -677,6 +727,8 @@ export class Menu {
             (!isMacDevice() && event.ctrlKey)
           ) {
             this.emitSelectAll();
+            // Visually show focus on all options (but keep actual focus on same option)
+            this.showFocusStateOnOptions(true);
           }
           break;
         case "Shift":
@@ -691,6 +743,7 @@ export class Menu {
               this.preventMenuFocus = true;
               this.preventClickOpen = true;
               this.optionHighlighted = undefined; // Stop any option focus states showing when focus moved to select all button
+              this.showFocusStateOnOptions(false);
             }
           } else {
             this.preventIncorrectTabOrder = true;
@@ -748,6 +801,7 @@ export class Menu {
     const { value, label } = (event.target as HTMLLIElement).dataset;
     this.menuOptionSelect.emit({ value, label });
     this.optionHighlighted = undefined;
+    this.showFocusStateOnOptions(false);
 
     if (this.isMultiSelect) {
       this.multiOptionClicked = value;
@@ -781,11 +835,13 @@ export class Menu {
       ) {
         this.handleMenuChange(false, this.hasPreviouslyBlurred);
         this.menu.removeAttribute(this.activeDescendantAttr);
+        this.showFocusStateOnOptions(false);
       }
     } else {
       this.handleMenuChange(false);
       this.preventClickOpen = true;
       this.menu.removeAttribute(this.activeDescendantAttr);
+      this.showFocusStateOnOptions(false);
     }
     if (!this.isSearchBar) this.hasPreviouslyBlurred = !!event.relatedTarget;
   };
