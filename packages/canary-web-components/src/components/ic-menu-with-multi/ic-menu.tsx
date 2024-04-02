@@ -564,7 +564,7 @@ export class Menu {
     );
   };
 
-  private getHighlightedOptionIndex = (value: string) => {
+  private getHighlightedOptionIndex = () => {
     const menuOptions = this.getMenuOptions();
 
     const highlightedOptionIndex = menuOptions.findIndex(
@@ -617,29 +617,33 @@ export class Menu {
             this.setHighlightedOption(clickedMultiOptionIndex);
             this.multiOptionClicked = null;
           } else if (highlightedOptionIndex < menuOptions.length - 1) {
-            if (event.shiftKey) {
-              this.selectHighlightedOption(
-                event.target,
-                menuOptions,
-                highlightedOptionIndex
-              );
-            }
+            if (this.isMultiSelect && event.shiftKey) {
+              const isOptionSelected = this.value?.includes(this.optionHighlighted);
 
-            console.log("BEFORE " + highlightedOptionIndex);
+              if (!isOptionSelected) {
+                this.selectHighlightedOption(
+                  event.target,
+                  menuOptions,
+                  highlightedOptionIndex
+                );
+              }
+            }
 
             this.setHighlightedOption(highlightedOptionIndex + 1);
             this.menuOptionId.emit({
               optionId: getOptionId(highlightedOptionIndex + 1),
             });
 
-            console.log("AFTER " + this.optionHighlighted);
+            if (event.shiftKey && this.isMultiSelect) {
+              const isOptionSelected = this.value?.includes(this.optionHighlighted);
 
-            if (event.shiftKey) {
-              this.selectHighlightedOption(
-                event.target,
-                menuOptions,
-                this.getHighlightedOptionIndex(this.optionHighlighted),
-              );
+              if (!isOptionSelected) {
+                this.selectHighlightedOption(
+                  event.target,
+                  menuOptions,
+                  this.getHighlightedOptionIndex(),
+                );
+              }
             }
           } else {
             this.setHighlightedOption(0);
