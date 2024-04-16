@@ -10,25 +10,33 @@ import {
   COLS,
   COLS_ALIGNMENT,
   COLS_ELEMENTS,
+  COLUMNS_NO_TEXT_WRAP,
   DATA,
   DATA_CELL_ALIGNMENT,
   ICON_COLS,
   ICON_DATA,
   LONG_COLS,
   LONG_DATA,
+  LONG_DATA_VALUES,
   ROW_ALIGNMENT,
   ROW_HEADER_COLS,
   ROW_HEADER_DATA,
 } from "../../../../canary-web-components/src/components/ic-data-table/story-data";
 
-import { HAVE_CLASS } from "../../../../react/src/component-tests/utils/constants";
+import {
+  BE_VISIBLE,
+  HAVE_CSS,
+} from "../../../../react/src/component-tests/utils/constants";
 
 import { setThresholdBasedOnEnv } from "../../../../react/cypress/utils/helpers";
 import { CYPRESS_AXE_OPTIONS } from "@ukic/react/cypress/utils/a11y";
 
-const DATA_TABLE_SELECTOR = "ic-data-table";
+const highlightedRowClass = "table-row-selected";
 const DEFAULT_THRESHOLD = 0.04;
+const DATA_TABLE_SELECTOR = "ic-data-table";
 const LOADING_INDICATOR_SELECTOR = "ic-loading-indicator";
+const PAGINATION_SELECTOR = "ic-pagination";
+const PAGINATION_BAR_SELECTOR = "ic-pagination-bar";
 
 export const BasicDataTable = (dataTableProps?): ReactElement => (
   <IcDataTable
@@ -849,3 +857,197 @@ describe("IcDataTables", () => {
     cy.findShadowEl(DATA_TABLE_SELECTOR, "tr").should("have.length", 5);
   });
 });
+
+/**
+ *   describe("truncation & textWrap", () => {
+    it("should truncate, add a line clamp and wrap with a tooltip the cell typography if it is too long to fit into the cell container", () => {
+      mount(
+        <IcDataTable
+          caption="Data tables"
+          columns={COLUMNS_NO_TEXT_WRAP}
+          data={LONG_DATA_VALUES}
+          truncationPattern="tooltip"
+        ></IcDataTable>
+      );
+
+      cy.checkHydrated(DATA_TABLE_SELECTOR);
+      cy.get(DATA_TABLE_SELECTOR)
+        .find("tr", { includeShadowDom: true })
+        .eq(1)
+        .find("td")
+        .last()
+        .click();
+      cy.compareSnapshot({
+        name: "truncation-tooltip",
+        testThreshold: setThresholdBasedOnEnv(0.13),
+      });
+
+      cy.findShadowEl(DATA_TABLE_SELECTOR, "#jobTitle-1")
+        .and(HAVE_CSS, "-webkit-line-clamp")
+        .should("equal", "1");
+
+      cy.findShadowEl(DATA_TABLE_SELECTOR, "#jobTitle-1")
+        .parent()
+        .should("have.prop", "tagName")
+        .should("equal", "IC-TOOLTIP");
+
+      cy.findShadowEl(DATA_TABLE_SELECTOR, "#jobTitle-1")
+        .parent()
+        .parent()
+        .and(HAVE_CSS, "height")
+        .should("equal", "24px");
+
+      cy.findShadowEl(DATA_TABLE_SELECTOR, "#jobTitle-1")
+        .parent()
+        .parent()
+        .and(HAVE_CSS, "overflowY")
+        .should("equal", "hidden");
+    });
+
+    it("should truncate using ic-typography's see more/see less button when truncationPattern is set to `showHide`", () => {
+      mount(
+        <IcDataTable
+          caption="Data tables"
+          columns={COLUMNS_NO_TEXT_WRAP}
+          data={LONG_DATA_VALUES}
+          truncationPattern="showHide"
+        ></IcDataTable>
+      );
+
+      cy.checkHydrated(DATA_TABLE_SELECTOR);
+      cy.compareSnapshot({
+        name: "truncation-showHide-collapsed",
+        testThreshold: setThresholdBasedOnEnv(0),
+      });
+
+      cy.findShadowEl(DATA_TABLE_SELECTOR, "#jobTitle-1")
+        .find(".trunc-wrapper", { includeShadowDom: true })
+        .and(HAVE_CSS, "-webkit-line-clamp")
+        .should("equal", "1");
+      cy.findShadowEl(DATA_TABLE_SELECTOR, "#jobTitle-1")
+        .find("button", { includeShadowDom: true })
+        .should(BE_VISIBLE)
+        .click();
+
+      cy.compareSnapshot({
+        name: "truncation-showHide-expanded",
+        testThreshold: setThresholdBasedOnEnv(0.028),
+      });
+    });
+
+    // it("should remove the fixed height of a column's cells when 'text-wrap' is set on the column", () => {
+    //   mount(<BasicDataTable />);
+
+    //   cy.get(DATA_TABLE_SELECTOR)
+    //     .find('[id*="jobTitle-"]', { includeShadowDom: true })
+    //     .each(($el) => {
+    //       cy.wrap($el)
+    //         .parent()
+    //         .then(($parent) => {
+    //           expect($parent.css("height")).to.equal("");
+    //         });
+    //     });
+    // });
+
+    it("should remove the fixed height of a row's cells when 'text-wrap' is set on the row", () => {
+      mount(
+        <IcDataTable
+          caption="Data tables"
+          columns={COLUMNS_NO_TEXT_WRAP}
+          data={LONG_DATA_VALUES}
+          truncationPattern="tooltip"
+        ></IcDataTable>
+      );
+
+      // TODO
+      //       const page = await newE2EPage();
+      //       await page.setViewport({ width: 1626, height: 517 });
+      //       await page.setContent(
+      //         getDataTableContent(
+      //           "",
+      //           null,
+      //           columnsWithNoTextWrap,
+      //           dataWithLongTextAndTextWrap
+      //         )
+      //       );
+      //       await page.waitForChanges();
+
+      //       const getRowHeight = (rowIndex: number) =>
+      //         await page.evaluate(
+      //           (rowIndex) =>
+      //             ["name", "age", "department", "employeeNumber", "jobTitle"].map(
+      //               (key) =>
+      //                 document
+      //                   .querySelector("ic-data-table")
+      //                   .shadowRoot.querySelector(`#${key}-${rowIndex}`).parentElement
+      //                   .style["height"]
+      //             ),
+      //           rowIndex
+      //         );
+
+      //       (await getRowHeight(2)).forEach((height) => expect(height).toBe("")); //Row with textWrap
+      //       (await getRowHeight(4)).forEach((height) =>
+      //         expect(height).toBe("1.5rem")
+      //       );
+    });
+
+    //     it("should truncate previously visible cell content when the row height changes to a smaller value", () => {
+    //       const page = await newE2EPage();
+    //       await page.setViewport({ width: 1626, height: 517 });
+    //       await page.setContent(
+    //         getDataTableContent("", 200, columnsWithNoTextWrap, dataWithLongText)
+    //       );
+
+    //       const getParentTagName = () =>
+    //         await page.evaluate(
+    //           () =>
+    //             document
+    //               .querySelector("ic-data-table")
+    //               .shadowRoot.querySelector("#jobTitle-1").parentElement.tagName
+    //         );
+
+    //       expect(await getParentTagName()).toBe("DIV");
+
+    //       (await page.find("ic-data-table")).setProperty("globalRowHeight", 40);
+    //       await page.waitForChanges();
+    //       expect(await getParentTagName()).toBe("IC-TOOLTIP");
+
+    //       (await page.find("ic-data-table")).setProperty("globalRowHeight", 200);
+    //       await page.waitForChanges();
+    //       expect(await getParentTagName()).toBe("DIV");
+    //     });
+
+    //     it("should truncate previously visible cell content using `See more/See less` when the row height changes to a smaller value", () => {
+    //       const page = await newE2EPage();
+    //       await page.setViewport({ width: 1626, height: 517 });
+    //       await page.setContent(
+    //         getDataTableContent(
+    //           ' truncation-pattern="showHide"',
+    //           200,
+    //           columnsWithNoTextWrap,
+    //           dataWithLongText
+    //         )
+    //       );
+
+    //       const getSeeMoreButton = () =>
+    //         await page.evaluate(
+    //           () =>
+    //             !!document
+    //               .querySelector("ic-data-table")
+    //               .shadowRoot.querySelector("#jobTitle-1")
+    //               .shadowRoot.querySelector("button")
+    //         );
+
+    //       expect(await getSeeMoreButton()).toBeFalsy();
+
+    //       (await page.find("ic-data-table")).setProperty("globalRowHeight", 40);
+    //       await page.waitForChanges();
+    //       expect(await getSeeMoreButton()).toBeTruthy();
+
+    //       (await page.find("ic-data-table")).setProperty("globalRowHeight", 80);
+    //       await page.waitForChanges();
+    //       expect(await getSeeMoreButton()).toBeFalsy();
+    //     });
+>>>>>>> a10878d8d (test(canary-react): add data table cypress tests and prettier fixes)
+
+ */

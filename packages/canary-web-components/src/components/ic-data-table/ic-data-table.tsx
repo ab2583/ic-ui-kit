@@ -21,6 +21,7 @@ import {
   IcDataTableDensityOptions,
   IcDataTableRowHeights,
   IcDataTableSortOrderOptions,
+  IcDataTableTruncationTypes,
   IcDensityUpdateEventDetail,
 } from "./ic-data-table.types";
 import {
@@ -30,7 +31,7 @@ import {
 } from "../ic-pagination/ic-pagination.types";
 import { IcThemeForegroundNoDefault } from "@ukic/web-components/dist/types/utils/types";
 // Unable to import helper functions via @ukic/web-components
-import { getSlotContent, isSlotUsed } from "../../utils/helpers";
+import { getSlotContent, isSlotUsed, pxToRem } from "../../utils/helpers";
 
 /**
  * @slot empty-state - Content is slotted below the table header when there is no data and the table is not loading.
@@ -50,15 +51,25 @@ export class DataTable {
     spacious: 1.2,
   };
 
+  private DENSITY_PADDING_HEIGHT_DIFF = {
+    dense: 8,
+    default: 16,
+    spacious: 20,
+  };
+
   private SORT_ICONS = {
     unsorted: unsortedIcon,
     ascending: ascendingIcon,
     descending: descendingIcon,
   };
 
+  private currentRowHeight: number;
+  private dataIsSorted: boolean = false;
   private hasLoadedForOneSecond: boolean = true;
+  private itemsPerPageChanged: boolean = false;
   private loadingIndicator: HTMLIcLoadingIndicatorElement;
   private timerStarted: number;
+  private updateTruncation: boolean = false;
 
   @Element() el: HTMLIcDataTableElement;
 
@@ -194,6 +205,12 @@ export class DataTable {
   @Prop() stickyRowHeaders?: boolean = false;
 
   /**
+   * For long text in cells that aren't set to textWrap, define how they should be truncated.
+   * `tooltip` adds a tooltip for the rest of the text, `showHide` adds the ic-typography "See More"/"See Less" buttons.
+   */
+  @Prop() truncationPattern?: IcDataTableTruncationTypes = "tooltip";
+
+  /**
    * If `true`, the table displays a linear loading indicator below the header row to indicate an updating state.
    */
   @Prop() updating?: boolean = false;
@@ -248,12 +265,156 @@ export class DataTable {
       this.startLoadingTimer();
       this.showLoadingIndicator();
     }
+
+    this.dataTruncation();
   }
+
+  componentDidUpdate(): void {
+    if (!this.itemsPerPageChanged) {
+      this.updateTruncation = true;
+    }
+    this.dataTruncation();
+    this.itemsPerPageChanged = false;
+    this.dataIsSorted = false;
+  }
+
+  private removeDivStyles = (parentDiv: HTMLElement) => {
+    parentDiv.style["height"] = null;
+    parentDiv.style["overflowY"] = null;
+  };
+
+  private VERTICAL_CLASSES = ["cell-alignment-middle", "cell-alignment-bottom"];
+
+  private removeVerticalAlignment = (el: HTMLElement): void => {
+    if (
+      this.VERTICAL_CLASSES.some((className) =>
+        Array.from(el.classList).includes(className)
+      )
+    ) {
+      el.classList.remove(...this.VERTICAL_CLASSES);
+    }
+  };
+
+  private setMaxLines = (
+    typographyEl: HTMLIcTypographyElement,
+    cellContainer: HTMLElement
+  ) => {
+    typographyEl.maxLines = Math.max(
+      Math.floor(cellContainer.clientHeight / 24) - 1,
+      1
+    ); // Math.floor
+    typographyEl.checkCellTextMaxLines(
+      cellContainer.clientHeight,
+      typographyEl.scrollHeight
+    );
+
+    this.removeDivStyles(cellContainer);
+  };
+
+  private resetMaxLines = (typographyEl: HTMLIcTypographyElement) => {
+    typographyEl.maxLines = undefined;
+  };
+
+  private dataTruncation = () => {
+    Array.from(
+      this.el.shadowRoot.querySelectorAll(
+        "ic-typography:not(.column-header-text)"
+      )
+    ).forEach((typographyEl: HTMLIcTypographyElement) => {
+      console.log(typographyEl);
+      const tableCell = typographyEl.closest("td");
+      const tooltip = typographyEl.closest("ic-tooltip");
+      const cellContainer = typographyEl.closest(
+        ".cell-container"
+      ) as HTMLElement;
+
+      if (cellContainer?.classList.contains("data-type-element")) return;
+
+      if (this.updateTruncation && !this.dataIsSorted) {
+        this.resetMaxLines(typographyEl);
+        cellContainer.appendChild(typographyEl);
+        tooltip?.remove();
+      }
+
+      if (
+        // If cellContainer is bigger than the content inside
+        cellContainer?.clientHeight > typographyEl.scrollHeight &&
+        !!typographyEl.scrollHeight
+      ) {
+        if (tooltip) {
+          // Move the content into the cell container and remove the tooltip as the content shouldnt be truncated
+          cellContainer.appendChild(typographyEl);
+          tooltip.remove();
+        } else {
+          // Remove an maxLines as the content is not truncated
+          typographyEl.maxLines = undefined;
+        }
+        // If content is bigger than cellContainer
+      } else if (typographyEl.scrollHeight > cellContainer?.clientHeight) {
+        // and the truncationPattern is tooltips
+        if (this.truncationPattern === "tooltip") {
+          // Get the number of lines by dividing by 24 (the eq of a line of text - in height) and add as line-clamp CSS
+          typographyEl.style.webkitLineClamp = `${Math.floor(
+            cellContainer.clientHeight / 24
+          )}`;
+          // Items that already have a tooltip before a change to the items per change, keep their tooltip
+          if (tooltip && !this.itemsPerPageChanged && !this.dataIsSorted) {
+            cellContainer.appendChild(typographyEl);
+            tooltip.remove();
+          }
+          if (tooltip && this.dataIsSorted) {
+            tooltip.setAttribute("target", typographyEl.id);
+            tooltip.setAttribute("label", typographyEl.textContent);
+          }
+          if (!tooltip) {
+            // if truncation pattern is tooltip and the tooltip does not exist, dynamically create one and add the content inside
+            const tooltipEl = document.createElement("ic-tooltip");
+            console.log(typographyEl.id);
+            const rowIndex = Number(typographyEl.id.match(/-(\d+)$/)[1]);
+            tooltipEl.setAttribute("target", typographyEl.id);
+            tooltipEl.setAttribute("label", typographyEl.textContent);
+
+            // Checks if the truncated text is in the first row of the displayed page
+            rowIndex === 0 && tooltipEl.setAttribute("placement", "bottom");
+            // Checks if the truncated text is in the last row of the displayed page
+            if (
+              rowIndex === this.data.length - 1 ||
+              rowIndex === this.rowsPerPage - 1
+            ) {
+              tooltipEl.setAttribute("placement", "top");
+            }
+            // Checks if the truncated text is in the first column
+            typographyEl.id.includes(this.columns[0].key) &&
+              tooltipEl.setAttribute("placement", "right");
+            // Checks if the truncated text is in the last column
+            typographyEl.id.includes(
+              this.columns[this.columns.length - 1].key
+            ) && tooltipEl.setAttribute("placement", "left");
+            typographyEl.parentNode.replaceChild(tooltipEl, typographyEl);
+            tooltipEl.appendChild(typographyEl);
+          }
+        } else {
+          // Else set the maxLines and add the see more/see less truncation link under
+          this.setMaxLines(typographyEl, cellContainer);
+
+          // Truncation should remove all alignment styling
+          this.removeVerticalAlignment(tableCell);
+          this.removeVerticalAlignment(cellContainer);
+        }
+      }
+    });
+
+    if (this.updateTruncation) {
+      this.updateTruncation = false;
+    }
+  };
 
   @Listen("icItemsPerPageChange")
   handleItemsPerPageChange(ev: CustomEvent): void {
     this.previousRowsPerPage = this.rowsPerPage;
     this.rowsPerPage = ev.detail.value;
+    this.itemsPerPageChanged = true;
+    this.dataTruncation();
   }
 
   @Listen("icPageChange")
@@ -271,6 +432,8 @@ export class DataTable {
     } else {
       this.previousRowsPerPage = this.rowsPerPage;
     }
+
+    this.dataTruncation();
   }
 
   @Listen("icTableDensityUpdate")
@@ -309,12 +472,19 @@ export class DataTable {
           )
         : (this.loading = false);
     }
-    if (this.updating) this.updating = false;
+    this.updating &&= false;
   }
 
   @Watch("globalRowHeight")
   @Watch("variableRowHeight")
   rowHeightChangeHandler(): void {
+    this.dataTruncation();
+
+    const deleteTextWrapKey = (array: any[]) =>
+      array.forEach((val) => val.textWrap && delete val.textWrap);
+    deleteTextWrapKey(this.data);
+    deleteTextWrapKey(this.columns);
+
     this.icRowHeightChange.emit();
   }
 
@@ -391,9 +561,21 @@ export class DataTable {
     );
   };
 
+  private setRowHeight = (height: number) => {
+    return pxToRem(
+      `${
+        height * this.DENSITY_HEIGHT_MULTIPLIER[this.density] -
+        this.DENSITY_PADDING_HEIGHT_DIFF[this.density]
+      }px`
+    );
+  };
+
   private createCells = (row: object, rowIndex: number) => {
+    // Get the name of the row??
     const rowValues = Object.values(row);
     const rowKeys = Object.keys(row);
+    const rowTextWrapIndex = rowKeys.indexOf("textWrap");
+    const rowTextWrap = rowTextWrapIndex > -1 && rowValues[rowTextWrapIndex];
     let rowAlignment: string;
     let rowEmphasis: string;
     const headerIndex = rowKeys.indexOf("header");
@@ -408,6 +590,7 @@ export class DataTable {
       const columnProps = this.columns[index];
       const cellSlotName = `${columnProps?.key}-${rowIndex}`;
       const hasIcon = this.isObject(cell) && Object.keys(cell).includes("icon");
+      const isNotElement = columnProps?.dataType !== "element";
       const cellValue = (key: string) => this.getObjectValue(cell, key);
 
       return rowKeys[index] === "header" ? (
@@ -455,6 +638,29 @@ export class DataTable {
               }`]:
                 !!columnProps?.columnAlignment?.horizontal ||
                 !!this.getCellAlignment(cell, "horizontal"),
+              [`cell-alignment-${
+                columnProps?.columnAlignment?.vertical ||
+                rowAlignment ||
+                this.getCellAlignment(cell, "vertical")
+              }`]:
+                !!columnProps?.columnAlignment?.vertical ||
+                !!rowAlignment ||
+                !!this.getCellAlignment(cell, "vertical"),
+            }}
+            style={{
+              height:
+                this.currentRowHeight &&
+                !rowTextWrap &&
+                !columnProps?.textWrap &&
+                isNotElement
+                  ? this.setRowHeight(this.currentRowHeight)
+                  : null,
+              overflowY:
+                this.truncationPattern === "tooltip" &&
+                !(rowTextWrap && columnProps?.textWrap) &&
+                isNotElement
+                  ? "hidden"
+                  : null,
             }}
           >
             {isSlotUsed(this.el, cellSlotName) ? (
@@ -472,6 +678,7 @@ export class DataTable {
                   )
                 )}
                 <ic-typography
+                  id={cellSlotName}
                   variant="body"
                   class={{
                     [`cell-emphasis-${
@@ -566,6 +773,16 @@ export class DataTable {
     ));
   };
 
+  private onRowClick = (target: HTMLElement, row: object) => {
+    if (
+      target.tagName !== "IC-TYPOGRAPHY" &&
+      !target.style.getPropertyValue("--truncation-max-lines")
+    ) {
+      this.selectedRow =
+        !(this.selectedRow === row && this.loading && this.updating) && row;
+    }
+  };
+
   private createRows = () => {
     const data = this.showPagination
       ? this.data.slice(this.fromRow, this.toRow)
@@ -591,29 +808,19 @@ export class DataTable {
           ...row,
           index,
         });
-        const findRowHeight = variableRowHeightVal
+        this.currentRowHeight = variableRowHeightVal
           ? variableRowHeightVal !== "auto" && variableRowHeightVal
           : this.globalRowHeight !== "auto" && this.globalRowHeight;
+
         return (
           <tr
             // eslint-disable-next-line react/jsx-no-bind
-            onClick={() =>
-              (this.selectedRow =
-                this.selectedRow !== row &&
-                !this.loading &&
-                !this.updating &&
-                row)
+            onClick={(event: MouseEvent) =>
+              this.onRowClick(event.target as HTMLElement, row)
             }
             class={{
               ["table-row"]: true,
               ["table-row-selected"]: this.selectedRow === row,
-            }}
-            style={{
-              height: findRowHeight
-                ? `${
-                    findRowHeight * this.DENSITY_HEIGHT_MULTIPLIER[this.density]
-                  }px`
-                : null,
             }}
           >
             {this.createCells(row, index)}
@@ -680,7 +887,7 @@ export class DataTable {
     const sortButton = this.el.shadowRoot.querySelector(
       `#sort-button-${column}`
     ) as HTMLIcButtonElement;
-
+    this.dataIsSorted = true;
     const sortOrders = this.sortOptions.sortOrders;
 
     if (column !== this.sortedColumn) {
@@ -747,6 +954,7 @@ export class DataTable {
           tabIndex={scrollable ? 0 : null}
           onScroll={updateScrollOffset}
         >
+          {isSlotUsed(this.el, "title-bar") && <slot name="title-bar" />}
           <table>
             <caption class="table-caption">{caption}</caption>
             {!hideColumnHeaders && (

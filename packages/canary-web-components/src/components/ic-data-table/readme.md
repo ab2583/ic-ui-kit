@@ -25,6 +25,7 @@
 | `sortable`                      | `sortable`                         | If `true`, allows table columns to be sorted using applied sort buttons.                                                                                                                                                          | `boolean`                                                                                                                                                                                                                   | `false`                                                                                                                                                                                                                                                                   |
 | `stickyColumnHeaders`           | `sticky-column-headers`            | If `true`, column headers will remain at the top of the table when scrolling vertically.                                                                                                                                          | `boolean`                                                                                                                                                                                                                   | `false`                                                                                                                                                                                                                                                                   |
 | `stickyRowHeaders`              | `sticky-row-headers`               | If `true`, row headers will remain to the left when scrolling horizontally.                                                                                                                                                       | `boolean`                                                                                                                                                                                                                   | `false`                                                                                                                                                                                                                                                                   |
+| `truncationPattern`             | `truncation-pattern`               | For long text in cells that aren't set to textWrap, define how they should be truncated. `tooltip` adds a tooltip for the rest of the text, `showHide` adds the ic-typography "See More"/"See Less" buttons.                      | `"showHide" \| "tooltip"`                                                                                                                                                                                                   | `"tooltip"`                                                                                                                                                                                                                                                               |
 | `updating`                      | `updating`                         | If `true`, the table displays a linear loading indicator below the header row to indicate an updating state.                                                                                                                      | `boolean`                                                                                                                                                                                                                   | `false`                                                                                                                                                                                                                                                                   |
 | `updatingOptions`               | --                                 | Sets the props for the linear loading indicator used in the updating state.                                                                                                                                                       | `{ appearance?: IcThemeForegroundNoDefault; description?: string; max?: number; min?: number; progress?: number; }`                                                                                                         | `undefined`                                                                                                                                                                                                                                                               |
 | `variableRowHeight`             | --                                 | Allows for custom setting of row heights on individual rows based on an individual value from the `data` prop and the row index. If the function returns `null`, that row's height will be set to the `globalRowHeight` property. | `(params: { [key: string]: any; index: number; }) => IcDataTableRowHeights`                                                                                                                                                 | `undefined`                                                                                                                                                                                                                                                               |
@@ -60,17 +61,11 @@ Type: `Promise<void>`
 | `"{COLUMN_KEY}-{ROW_INDEX}[-icon]"` | Each cell should have its own slot, named using the column tag and the row index, allowing for custom elements to be displayed. Include `-icon` at the end for that cell's icon slot. |
 
 
-## CSS Custom Properties
-
-| Name       | Description                       |
-| ---------- | --------------------------------- |
-| `--height` | height of the table row container |
-
-
 ## Dependencies
 
 ### Depends on
 
+- ic-tooltip
 - ic-loading-indicator
 - ic-typography
 - ic-link
@@ -81,16 +76,17 @@ Type: `Promise<void>`
 ### Graph
 ```mermaid
 graph TD;
+  ic-data-table --> ic-tooltip
   ic-data-table --> ic-loading-indicator
   ic-data-table --> ic-typography
   ic-data-table --> ic-link
   ic-data-table --> ic-button
   ic-data-table --> ic-empty-state
   ic-data-table --> ic-pagination-bar
+  ic-tooltip --> ic-typography
   ic-loading-indicator --> ic-typography
   ic-button --> ic-loading-indicator
   ic-button --> ic-tooltip
-  ic-tooltip --> ic-typography
   ic-empty-state --> ic-typography
   ic-pagination-bar --> ic-typography
   ic-pagination-bar --> ic-select
