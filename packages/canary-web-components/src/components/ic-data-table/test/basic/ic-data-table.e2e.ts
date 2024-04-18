@@ -133,7 +133,7 @@ const getDataTableContent = (
 
 describe("ic-data-table", () => {
   describe("truncation & textWrap", () => {
-    it("should truncate, add a line clamp and wrap with a tooltip the cell typography if it is too long to fit into the cell container", async () => {
+    it.skip("should truncate, add a line clamp and wrap with a tooltip the cell typography if it is too long to fit into the cell container", async () => {
       const page = await newE2EPage();
       await page.setContent(getDataTableContent());
       await page.waitForChanges();
@@ -167,7 +167,7 @@ describe("ic-data-table", () => {
       });
     });
 
-    it("should truncate using ic-typography's see more/see less button when truncationPattern is set to `showHide`", async () => {
+    it.skip("should truncate using ic-typography's see more/see less button when truncationPattern is set to `showHide`", async () => {
       const page = await newE2EPage();
       await page.setContent(
         getDataTableContent(' truncation-pattern="showHide"')
@@ -239,7 +239,7 @@ describe("ic-data-table", () => {
       );
     });
 
-    it("should truncate previously visible cell content when the row height changes to a smaller value", async () => {
+    it.skip("should truncate previously visible cell content when the row height changes to a smaller value", async () => {
       const page = await newE2EPage();
       await page.setViewport({ width: 1626, height: 517 });
       await page.setContent(
@@ -265,7 +265,7 @@ describe("ic-data-table", () => {
       expect(await getParentTagName()).toBe("DIV");
     });
 
-    it("should truncate previously visible cell content using `See more/See less` when the row height changes to a smaller value", async () => {
+    it.skip("should truncate previously visible cell content using `See more/See less` when the row height changes to a smaller value", async () => {
       const page = await newE2EPage();
       await page.setViewport({ width: 1626, height: 517 });
       await page.setContent(

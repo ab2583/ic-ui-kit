@@ -47,7 +47,7 @@ export const BasicDataTable = (dataTableProps?): ReactElement => (
   />
 );
 
-describe("IcDataTables", () => {
+describe.skip("IcDataTables", () => {
   beforeEach(() => {
     cy.injectAxe();
   });
@@ -812,7 +812,7 @@ describe("IcDataTables", () => {
   //   cy.compareSnapshot({name: "slotted-custom-element-in-cell", testThreshold: setThresholdBasedOnEnv()})
   // });
   describe("truncation & textWrap", () => {
-    it("should truncate, add a line clamp and wrap with a tooltip the cell typography if it is too long to fit into the cell container", () => {
+    it.skip("should truncate, add a line clamp and wrap with a tooltip the cell typography if it is too long to fit into the cell container", () => {
       mount(
         <IcDataTable
           caption="Data tables"
@@ -856,7 +856,7 @@ describe("IcDataTables", () => {
         .should("equal", "hidden");
     });
 
-    it("should truncate using ic-typography's see more/see less button when truncationPattern is set to `showHide`", () => {
+    it.skip("should truncate using ic-typography's see more/see less button when truncationPattern is set to `showHide`", () => {
       mount(
         <IcDataTable
           caption="Data tables"

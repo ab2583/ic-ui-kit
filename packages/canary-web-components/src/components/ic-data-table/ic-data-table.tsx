@@ -31,7 +31,12 @@ import {
 } from "../ic-pagination/ic-pagination.types";
 import { IcThemeForegroundNoDefault } from "@ukic/web-components/dist/types/utils/types";
 // Unable to import helper functions via @ukic/web-components
-import { getSlotContent, isSlotUsed, pxToRem } from "../../utils/helpers";
+import {
+  getSlotContent,
+  isSlotUsed,
+  pxToRem,
+  debounce,
+} from "../../utils/helpers";
 
 /**
  * @slot empty-state - Content is slotted below the table header when there is no data and the table is not loading.
@@ -64,12 +69,13 @@ export class DataTable {
   };
 
   private currentRowHeight: number;
-  private dataIsSorted: boolean = false;
+  // private dataIsSorted: boolean = false;
   private hasLoadedForOneSecond: boolean = true;
-  private itemsPerPageChanged: boolean = false;
+  // private itemsPerPageChanged: boolean = false;
   private loadingIndicator: HTMLIcLoadingIndicatorElement;
   private timerStarted: number;
-  private updateTruncation: boolean = false;
+  // private updateTruncation: boolean = false;
+  private resizeObserver: ResizeObserver = null;
 
   @Element() el: HTMLIcDataTableElement;
 
@@ -240,6 +246,10 @@ export class DataTable {
    */
   @Event() icRowHeightChange: EventEmitter<void>;
 
+  disconnectedCallback(): void {
+    this.resizeObserver?.disconnect();
+  }
+
   componentWillLoad(): void {
     this.rowsPerPage = Number(this.paginationOptions.itemsPerPage[0].value);
     this.previousRowsPerPage = this.rowsPerPage;
@@ -266,153 +276,203 @@ export class DataTable {
       this.showLoadingIndicator();
     }
 
-    this.dataTruncation();
+    this.debounceDataTruncation();
   }
 
   componentDidUpdate(): void {
-    if (!this.itemsPerPageChanged) {
-      this.updateTruncation = true;
-    }
-    this.dataTruncation();
-    this.itemsPerPageChanged = false;
-    this.dataIsSorted = false;
+    // if (!this.itemsPerPageChanged) {
+    //   this.updateTruncation = true;
+    // }
+    // this.dataTruncation();
+    // this.itemsPerPageChanged = false;
+    // this.dataIsSorted = false;
   }
 
-  private removeDivStyles = (parentDiv: HTMLElement) => {
-    parentDiv.style["height"] = null;
-    parentDiv.style["overflowY"] = null;
-  };
+  // private removeDivStyles = (parentDiv: HTMLElement) => {
+  //   parentDiv.style["height"] = null;
+  //   parentDiv.style["overflowY"] = null;
+  // };
 
-  private VERTICAL_CLASSES = ["cell-alignment-middle", "cell-alignment-bottom"];
+  // private VERTICAL_CLASSES = ["cell-alignment-middle", "cell-alignment-bottom"];
 
-  private removeVerticalAlignment = (el: HTMLElement): void => {
-    if (
-      this.VERTICAL_CLASSES.some((className) =>
-        Array.from(el.classList).includes(className)
-      )
-    ) {
-      el.classList.remove(...this.VERTICAL_CLASSES);
-    }
-  };
+  // private removeVerticalAlignment = (el: HTMLElement): void => {
+  //   if (
+  //     this.VERTICAL_CLASSES.some((className) =>
+  //       Array.from(el.classList).includes(className)
+  //     )
+  //   ) {
+  //     el.classList.remove(...this.VERTICAL_CLASSES);
+  //   }
+  // };
 
-  private setMaxLines = (
-    typographyEl: HTMLIcTypographyElement,
-    cellContainer: HTMLElement
-  ) => {
-    typographyEl.maxLines = Math.max(
-      Math.floor(cellContainer.clientHeight / 24) - 1,
-      1
-    ); // Math.floor
-    typographyEl.checkCellTextMaxLines(
-      cellContainer.clientHeight,
-      typographyEl.scrollHeight
-    );
+  // private setMaxLines = (
+  //   typographyEl: HTMLIcTypographyElement,
+  //   cellContainer: HTMLElement
+  // ) => {
+  //   typographyEl.maxLines = Math.max(
+  //     Math.floor(cellContainer.clientHeight / 24) - 1,
+  //     1
+  //   ); // Math.floor
+  //   typographyEl.checkCellTextMaxLines(
+  //     cellContainer.clientHeight,
+  //     typographyEl.scrollHeight
+  //   );
 
-    this.removeDivStyles(cellContainer);
-  };
+  //   this.removeDivStyles(cellContainer);
+  // };
 
-  private resetMaxLines = (typographyEl: HTMLIcTypographyElement) => {
-    typographyEl.maxLines = undefined;
-  };
+  // private resetMaxLines = (typographyEl: HTMLIcTypographyElement) => {
+  //   typographyEl.maxLines = undefined;
+  // };
 
-  private dataTruncation = () => {
+  // private dataTruncation = () => {
+  //   Array.from(
+  //     this.el.shadowRoot.querySelectorAll(
+  //       "ic-typography:not(.column-header-text)"
+  //     )
+  //   ).forEach((typographyEl: HTMLIcTypographyElement) => {
+  //     const tableCell = typographyEl.closest("td");
+  //     const tooltip = typographyEl.closest("ic-tooltip");
+  //     const cellContainer = typographyEl.closest(
+  //       ".cell-container"
+  //     ) as HTMLElement;
+
+  //     if (cellContainer?.classList.contains("data-type-element")) return;
+
+  //     if (this.updateTruncation && !this.dataIsSorted) {
+  //       // this.resetMaxLines(typographyEl);
+  //       cellContainer.appendChild(typographyEl);
+  //       tooltip?.remove();
+  //     }
+
+  //     if (
+  //       // If cellContainer is bigger than the content inside
+  //       cellContainer?.clientHeight > typographyEl.scrollHeight &&
+  //       !!typographyEl.scrollHeight
+  //     ) {
+  //       if (tooltip) {
+  //         // Move the content into the cell container and remove the tooltip as the content shouldnt be truncated
+  //         cellContainer.appendChild(typographyEl);
+  //         tooltip.remove();
+  //       } else {
+  //         // Remove an maxLines as the content is not truncated
+  //         // typographyEl.maxLines = undefined;
+  //       }
+  //       // If content is bigger than cellContainer
+  //     } else if (typographyEl.scrollHeight > cellContainer?.clientHeight) {
+  //       // and the truncationPattern is tooltips
+  //       if (this.truncationPattern === "tooltip") {
+  //         // Get the number of lines by dividing by 24 (the eq of a line of text - in height) and add as line-clamp CSS
+  //         // typographyEl.style.webkitLineClamp = `${Math.floor(
+  //         //   cellContainer.clientHeight / 24
+  //         // )}`;
+  //         // Items that already have a tooltip before a change to the items per change, keep their tooltip
+  //         if (tooltip && !this.itemsPerPageChanged && !this.dataIsSorted) {
+  //           cellContainer.appendChild(typographyEl);
+  //           tooltip.remove();
+  //         }
+  //         if (tooltip && this.dataIsSorted) {
+  //           tooltip.setAttribute("target", typographyEl.id);
+  //           tooltip.setAttribute("label", typographyEl.textContent);
+  //         }
+  //         if (!tooltip) {
+  //           // if truncation pattern is tooltip and the tooltip does not exist, dynamically create one and add the content inside
+  //           const tooltipEl = document.createElement("ic-tooltip");
+  //           const rowIndex = Number(typographyEl.id.match(/-(\d+)$/)[1]);
+  //           tooltipEl.setAttribute("target", typographyEl.id);
+  //           tooltipEl.setAttribute("label", typographyEl.textContent);
+
+  //           // Checks if the truncated text is in the first row of the displayed page
+  //           rowIndex === 0 && tooltipEl.setAttribute("placement", "bottom");
+  //           // Checks if the truncated text is in the last row of the displayed page
+  //           if (
+  //             rowIndex === this.data.length - 1 ||
+  //             rowIndex === this.rowsPerPage - 1
+  //           ) {
+  //             tooltipEl.setAttribute("placement", "top");
+  //           }
+  //           // Checks if the truncated text is in the first column
+  //           typographyEl.id.includes(this.columns[0].key) &&
+  //             tooltipEl.setAttribute("placement", "right");
+  //           // Checks if the truncated text is in the last column
+  //           typographyEl.id.includes(
+  //             this.columns[this.columns.length - 1].key
+  //           ) && tooltipEl.setAttribute("placement", "left");
+  //           typographyEl.parentNode.replaceChild(tooltipEl, typographyEl);
+  //           tooltipEl.appendChild(typographyEl);
+  //         }
+  //       } else {
+  //         // Else set the maxLines and add the see more/see less truncation link under
+  //         // this.setMaxLines(typographyEl, cellContainer);
+
+  //         // Truncation should remove all alignment styling
+  //         this.removeVerticalAlignment(tableCell);
+  //         this.removeVerticalAlignment(cellContainer);
+  //       }
+  //     }
+  //   });
+
+  //   if (this.updateTruncation) {
+  //     this.updateTruncation = false;
+  //   }
+  // };
+
+  private debounceDataTruncation = () => {
     Array.from(
       this.el.shadowRoot.querySelectorAll(
         "ic-typography:not(.column-header-text)"
       )
     ).forEach((typographyEl: HTMLIcTypographyElement) => {
-      const tableCell = typographyEl.closest("td");
-      const tooltip = typographyEl.closest("ic-tooltip");
-      const cellContainer = typographyEl.closest(
-        ".cell-container"
-      ) as HTMLElement;
+      if (!typographyEl.classList.contains("text-wrap")) {
+        this.resizeObserver = new ResizeObserver(
+          debounce(() => {
+            this.dataTruncation(typographyEl);
+          }, 200) as ResizeObserverCallback
+        );
 
-      if (cellContainer?.classList.contains("data-type-element")) return;
-
-      if (this.updateTruncation && !this.dataIsSorted) {
-        this.resetMaxLines(typographyEl);
-        cellContainer.appendChild(typographyEl);
-        tooltip?.remove();
-      }
-
-      if (
-        // If cellContainer is bigger than the content inside
-        cellContainer?.clientHeight > typographyEl.scrollHeight &&
-        !!typographyEl.scrollHeight
-      ) {
-        if (tooltip) {
-          // Move the content into the cell container and remove the tooltip as the content shouldnt be truncated
-          cellContainer.appendChild(typographyEl);
-          tooltip.remove();
-        } else {
-          // Remove an maxLines as the content is not truncated
-          typographyEl.maxLines = undefined;
-        }
-        // If content is bigger than cellContainer
-      } else if (typographyEl.scrollHeight > cellContainer?.clientHeight) {
-        // and the truncationPattern is tooltips
-        if (this.truncationPattern === "tooltip") {
-          // Get the number of lines by dividing by 24 (the eq of a line of text - in height) and add as line-clamp CSS
-          typographyEl.style.webkitLineClamp = `${Math.floor(
-            cellContainer.clientHeight / 24
-          )}`;
-          // Items that already have a tooltip before a change to the items per change, keep their tooltip
-          if (tooltip && !this.itemsPerPageChanged && !this.dataIsSorted) {
-            cellContainer.appendChild(typographyEl);
-            tooltip.remove();
-          }
-          if (tooltip && this.dataIsSorted) {
-            tooltip.setAttribute("target", typographyEl.id);
-            tooltip.setAttribute("label", typographyEl.textContent);
-          }
-          if (!tooltip) {
-            // if truncation pattern is tooltip and the tooltip does not exist, dynamically create one and add the content inside
-            const tooltipEl = document.createElement("ic-tooltip");
-            const rowIndex = Number(typographyEl.id.match(/-(\d+)$/)[1]);
-            tooltipEl.setAttribute("target", typographyEl.id);
-            tooltipEl.setAttribute("label", typographyEl.textContent);
-
-            // Checks if the truncated text is in the first row of the displayed page
-            rowIndex === 0 && tooltipEl.setAttribute("placement", "bottom");
-            // Checks if the truncated text is in the last row of the displayed page
-            if (
-              rowIndex === this.data.length - 1 ||
-              rowIndex === this.rowsPerPage - 1
-            ) {
-              tooltipEl.setAttribute("placement", "top");
-            }
-            // Checks if the truncated text is in the first column
-            typographyEl.id.includes(this.columns[0].key) &&
-              tooltipEl.setAttribute("placement", "right");
-            // Checks if the truncated text is in the last column
-            typographyEl.id.includes(
-              this.columns[this.columns.length - 1].key
-            ) && tooltipEl.setAttribute("placement", "left");
-            typographyEl.parentNode.replaceChild(tooltipEl, typographyEl);
-            tooltipEl.appendChild(typographyEl);
-          }
-        } else {
-          // Else set the maxLines and add the see more/see less truncation link under
-          this.setMaxLines(typographyEl, cellContainer);
-
-          // Truncation should remove all alignment styling
-          this.removeVerticalAlignment(tableCell);
-          this.removeVerticalAlignment(cellContainer);
-        }
+        this.resizeObserver.observe(typographyEl);
       }
     });
+  };
 
-    if (this.updateTruncation) {
-      this.updateTruncation = false;
+  private dataTruncation = (typographyEl: HTMLIcTypographyElement) => {
+    // const tableCell = typographyEl.closest("td");
+    const tooltip = typographyEl.closest("ic-tooltip");
+    const cellContainer = typographyEl.closest(
+      ".cell-container"
+    ) as HTMLElement;
+
+    if (cellContainer?.classList.contains("data-type-element")) return;
+
+    if (typographyEl?.scrollWidth > cellContainer?.clientWidth) {
+      if (this.truncationPattern === "tooltip" && !tooltip) {
+        const tooltipEl = document.createElement("ic-tooltip");
+        tooltipEl.setAttribute("target", typographyEl.id);
+        tooltipEl.setAttribute("label", typographyEl.textContent);
+        cellContainer.appendChild(tooltipEl);
+        tooltipEl.appendChild(typographyEl);
+      }
+    } else {
+      if (tooltip) {
+        cellContainer.appendChild(typographyEl);
+        tooltip.remove();
+      }
     }
+
+    // if (typographyEl.id === "address-0") {
+    //   console.log({
+    //     cellSize: cellContainer.clientWidth,
+    //     typographySize: typographyEl.scrollWidth,
+    //   });
+    // }
   };
 
   @Listen("icItemsPerPageChange")
   handleItemsPerPageChange(ev: CustomEvent): void {
     this.previousRowsPerPage = this.rowsPerPage;
     this.rowsPerPage = ev.detail.value;
-    this.itemsPerPageChanged = true;
-    this.dataTruncation();
+    // this.itemsPerPageChanged = true;
+    // this.dataTruncation();
   }
 
   @Listen("icPageChange")
@@ -431,7 +491,7 @@ export class DataTable {
       this.previousRowsPerPage = this.rowsPerPage;
     }
 
-    this.dataTruncation();
+    // this.dataTruncation();
   }
 
   @Listen("icTableDensityUpdate")
@@ -476,7 +536,7 @@ export class DataTable {
   @Watch("globalRowHeight")
   @Watch("variableRowHeight")
   rowHeightChangeHandler(): void {
-    this.dataTruncation();
+    // this.dataTruncation();
 
     const deleteTextWrapKey = (array: any[]) =>
       array.forEach((val) => val.textWrap && delete val.textWrap);
@@ -690,6 +750,7 @@ export class DataTable {
                         !!emphasis ||
                         !!rowEmphasis,
                       [`text-${this.density}`]: this.notDefaultDensity(),
+                      ["text-wrap"]: textWrap || rowTextWrap,
                     }}
                   >
                     {this.isObject(cell) && dataType !== "date" ? (
@@ -888,7 +949,7 @@ export class DataTable {
     const sortButton = this.el.shadowRoot.querySelector(
       `#sort-button-${column}`
     ) as HTMLIcButtonElement;
-    this.dataIsSorted = true;
+    // this.dataIsSorted = true;
     const sortOrders = this.sortOptions.sortOrders;
 
     if (column !== this.sortedColumn) {

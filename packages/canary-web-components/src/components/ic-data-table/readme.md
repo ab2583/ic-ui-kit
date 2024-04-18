@@ -72,28 +72,28 @@ Type: `Promise<void>`
 
 ### Depends on
 
+- ic-tooltip
 - ic-loading-indicator
 - ic-typography
 - ic-link
 - ic-button
-- ic-tooltip
 - ic-empty-state
 - [ic-pagination-bar](../ic-pagination-bar)
 
 ### Graph
 ```mermaid
 graph TD;
+  ic-data-table --> ic-tooltip
   ic-data-table --> ic-loading-indicator
   ic-data-table --> ic-typography
   ic-data-table --> ic-link
   ic-data-table --> ic-button
-  ic-data-table --> ic-tooltip
   ic-data-table --> ic-empty-state
   ic-data-table --> ic-pagination-bar
+  ic-tooltip --> ic-typography
   ic-loading-indicator --> ic-typography
   ic-button --> ic-loading-indicator
   ic-button --> ic-tooltip
-  ic-tooltip --> ic-typography
   ic-empty-state --> ic-typography
   ic-pagination-bar --> ic-typography
   ic-pagination-bar --> ic-select

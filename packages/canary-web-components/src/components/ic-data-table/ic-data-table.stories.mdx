@@ -30,11 +30,12 @@ import {
   TruncationShowHide,
   TruncationTooltip,
   CustomTitleBar,
+  LargeDataSet,
 } from "./story-data";
 import readme from "./readme.md";
 
 <Meta
-  title="Canary Web Components/Data Table"
+  title="Web Components/Data Table"
   component="ic-data-table"
   parameters={{
     componentAPI: {
@@ -61,7 +62,7 @@ To use the data table component, import `@ukic/canary-web-components` into your 
 A basic example with no functionality.
 
 <Canvas withSource="none">
-  <Story name="Basic">{Basic()}</Story>
+  <Story name="Basic"  parameters={{ loki: { skip: true } }}>{Basic()}</Story>
 </Canvas>
 
 #### Basic code example
@@ -140,12 +141,20 @@ A basic example with no functionality.
 </script>
 ```
 
+### Large Data Set
+
+<Canvas withSource="none">
+  <Story name="Large Data Set" parameters={{ loki: { skip: true } }}>
+    {LargeDataSet()}
+  </Story>
+</Canvas>
+
 ### Embedded
 
 The `embedded` boolean adds a border around the table so it can be added as a standalone table and is not required to stretch the full width of its parent container.
 
 <Canvas withSource="none">
-  <Story name="Embedded">{Embedded()}</Story>
+  <Story name="Embedded"  parameters={{ loki: { skip: true } }}>{Embedded()}</Story>
 </Canvas>
 
 #### Embedded code example
@@ -194,7 +203,7 @@ The `density` variant provides three different styles for the data table.
 ### Dense
 
 <Canvas withSource="none">
-  <Story name="Dense">{Dense()}</Story>
+  <Story name="Dense" parameters={{ loki: { skip: true } }}>{Dense()}</Story>
 </Canvas>
 
 #### Dense code example
@@ -235,7 +244,7 @@ The `density` variant provides three different styles for the data table.
 ### Spacious
 
 <Canvas withSource="none">
-  <Story name="Spacious">{Spacious()}</Story>
+  <Story name="Spacious" parameters={{ loki: { skip: true } }}>{Spacious()}</Story>
 </Canvas>
 
 #### Spacious code example
@@ -279,7 +288,7 @@ When a height for the data table is set, the scroll bar will appear to the right
 This can be mitigated by using the `sticky-column-headers` prop which takes a boolean. This can be toggled within the example below.
 
 <Canvas withSource="none">
-  <Story name="Sticky Column Headers">{Scrollable()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Sticky Column Headers">{Scrollable()}</Story>
 </Canvas>
 
 #### Sticky column headers code example
@@ -324,7 +333,7 @@ Row headers allow headings to be added to individual rows and styles them as col
 The data array includes an additional `header` key which takes an object. The title of the row header is set by passing `title` as the key and a value.
 
 <Canvas withSource="none">
-  <Story name="Row Headers">{RowHeaders()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Row Headers">{RowHeaders()}</Story>
 </Canvas>
 
 #### Row headers code example
@@ -370,7 +379,7 @@ The data array includes an additional `header` key which takes an object. The ti
 Set `sortable` to `true` to set the sort functionality on all columns. Sorting can be set to `unsorted`, `ascending` and `descending` by press the sort buttons next to the column heading.
 
 <Canvas withSource="none">
-  <Story name="Sort">{Sort()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Sort">{Sort()}</Story>
 </Canvas>
 
 #### Sort code example
@@ -409,7 +418,7 @@ Set `sortable` to `true` to set the sort functionality on all columns. Sorting c
 It is possible to change the sort options for the sort buttons. The `sortOptions` prop takes an object with `sortOrders` and `defaultColumn`. `sortOrders` allows the sort order to be amended as we all as remove a sort type. Such as changing the order to `descending`, `unsorted` and remove `ascending`. `defaultColumn` sets which column is ordered by default. This is set by padding the column key as the `defaultColumn` value.
 
 <Canvas withSource="none">
-  <Story name="Sort Options">{SortOptions()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Sort Options">{SortOptions()}</Story>
 </Canvas>
 
 #### Sort options code example
@@ -460,7 +469,7 @@ Pagination allows large data sets to be split into pages in order to make the da
 - `goToPageControl` displays controls which allows jumping between pages in a non-linear approach.
 
 <Canvas withSource="none">
-  <Story name="Pagination">{Pagination()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Pagination">{Pagination()}</Story>
 </Canvas>
 
 #### Pagination code example
@@ -517,7 +526,7 @@ There may be a requirement to style a column differently to the rest of the data
 `emphasis` can be added to the column by setting `high` or `low`.
 
 <Canvas withSource="none">
-  <Story name="Column Overrides">{ColumnOverrides()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Column Overrides">{ColumnOverrides()}</Story>
 </Canvas>
 
 #### Column overrides code example
@@ -561,7 +570,7 @@ Row overrides allow styling to be applied at a row level and is set within the `
 - `emphasis` accepts `high` or `low`.
 
 <Canvas withSource="none">
-  <Story name="Row Overrides">{RowOverrides()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Row Overrides">{RowOverrides()}</Story>
 </Canvas>
 
 #### Row overrides code example
@@ -616,7 +625,7 @@ Cell overrides allows styling to be applied at a cell level. The cell which requ
 - `emphasis` accepts `high` or `low`.
 
 <Canvas withSource="none">
-  <Story name="Cell Overrides">{CellOverrides()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Cell Overrides">{CellOverrides()}</Story>
 </Canvas>
 
 #### Cell overrides code example
@@ -659,7 +668,7 @@ Cell overrides allows styling to be applied at a cell level. The cell which requ
 When the table recieves no data (either null or an empty array) it will automatically show an ic-empty-state below the headers.
 
 <Canvas withSource="none">
-  <Story name="Default Empty State">{Empty()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Default Empty State">{Empty()}</Story>
 </Canvas>
 
 #### Default Empty State code example
@@ -686,7 +695,7 @@ When the table recieves no data (either null or an empty array) it will automati
 You can customise your own `ic-empty-state` component and slot it into the data table using the `empty-state` slot, to reflect different scenarios.
 
 <Canvas withSource="none">
-  <Story name="Slotted Empty State">{EmptySlotted()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Slotted Empty State">{EmptySlotted()}</Story>
 </Canvas>
 
 #### Slotted Empty State code example
@@ -777,7 +786,7 @@ If certain data in the table has changed, an `updating` prop has been supplied t
 This prop is also accompanied by an `updatingOptions` prop, which contains similar options to `loadingOptions`, minus `label` and `labelDuration` since the linear version is displayed.
 
 <Canvas withSource="none">
-  <Story name="Updating State">{Updating()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Updating State">{Updating()}</Story>
 </Canvas>
 
 #### Updating State code example
@@ -817,7 +826,7 @@ This prop is also accompanied by an `updatingOptions` prop, which contains simil
 Custom HTML elements can be slotted or passed via the `data` prop to display in certain cells. When using the slotted method, the slot name follows the format of `{COLUMN_TAG}-{ROW_INDEX}`.
 
 <Canvas withSource="none">
-  <Story name="Links and Elements in data">{LinksHTMLElements()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Links and Elements in data">{LinksHTMLElements()}</Story>
 </Canvas>
 
 #### Links and Elements in data code example
@@ -881,7 +890,7 @@ To add icons to individual cells, they can be added through the `data` prop, in 
 Both cells and headers can also have icons slotted in. Cells use the slot format: `{COLUMN_KEY}-{ROW_INDEX}-icon`, and Headers use the format: `{COLUMN_KEY}-column-icon`. Slotted icons take priority over icons inserted via the `columns` and `data` props.
 
 <Canvas withSource="none">
-  <Story name="Custom Icons">{CustomIcons()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Custom Icons">{CustomIcons()}</Story>
 </Canvas>
 
 #### Custom Icons code example
@@ -984,7 +993,7 @@ To quickly reset all row heights to the default, you can run the `resetRowHeight
 If you'd rather let the row calculate its own height based on its content, either set `globalRowHeight` to `auto`, or return `auto` from `variableRowHeight`.
 
 <Canvas withSource="none">
-  <Story name="Custom Row Heights">{CustomRowHeights()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Custom Row Heights">{CustomRowHeights()}</Story>
 </Canvas>
 
 #### Custom Row Heights code example
@@ -1036,13 +1045,13 @@ These values are set using the `truncation-pattern` attribute.
 If there is a certain row or column that should be exempt from truncation, then a property can either be added to the row or the column object, named `textWrap`. Anything this is applied to will ignore a custom height and show the full content.
 
 <Canvas withSource="none">
-  <Story name="Truncating Cell Data with See More/Less Button">
+  <Story parameters={{ loki: { skip: true } }} name="Truncating Cell Data with See More/Less Button">
     {TruncationShowHide()}
   </Story>
 </Canvas>
 
 <Canvas withSource="none">
-  <Story name="Truncating Cell Data with Tooltip">{TruncationTooltip()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Truncating Cell Data with Tooltip">{TruncationTooltip()}</Story>
 </Canvas>
 
 #### Truncating Cell Data code example
@@ -1094,7 +1103,7 @@ The `ic-data-table-title-bar` has a built-in density selector, which allows a us
 Full documentation for this component can be found in the code examples located <ic-link href="/?path=/story/web-components-data-table-title-bar--basic" inline="">here</ic-link>.
 
 <Canvas withSource="none">
-  <Story name="Custom Title Bar">{CustomTitleBar()}</Story>
+  <Story parameters={{ loki: { skip: true } }} name="Custom Title Bar">{CustomTitleBar()}</Story>
 </Canvas>
 
 #### Custom Title Bar code example

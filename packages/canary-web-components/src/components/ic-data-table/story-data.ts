@@ -731,6 +731,9 @@ export const createDataTableElement = (
 export const Basic = (): HTMLIcDataTableElement =>
   createDataTableElement("Basic Table");
 
+export const LargeDataSet = (): HTMLIcDataTableElement =>
+  createDataTableElement("Basic Table", LONG_COLS, LONG_DATA);
+
 export const Embedded = (): HTMLIcDataTableElement => {
   const dataTable = createDataTableElement("Embedded Table");
   dataTable.setAttribute("embedded", "true");

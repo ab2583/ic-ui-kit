@@ -315,3 +315,14 @@ export const pxToRem = (px: string, base = 16): string => {
   const tempPx = parseInt(px);
   return `${(1 / base) * tempPx}rem`;
 };
+
+export const debounce = (
+  func: (...args: unknown[]) => void,
+  wait = 0
+): unknown => {
+  let timer: ReturnType<typeof setTimeout>;
+  return (...args: unknown[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(func, wait, ...args);
+  };
+};

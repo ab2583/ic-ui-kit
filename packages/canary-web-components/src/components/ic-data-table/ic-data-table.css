@@ -21,7 +21,11 @@ tbody {
 .table-row-container {
   position: relative;
   height: 100%;
-  overflow: auto;
+
+  /* overflow: auto; */
+
+  /* @TODO: 'overflow: visible' fixes tooltip and scrollbars but will need further testing */
+  overflow: visible;
   transition: var(--ic-easing-transition-fast);
   overflow-anchor: none;
 }
@@ -166,11 +170,11 @@ table {
   border-bottom: solid var(--ic-architectural-100) var(--ic-space-1px);
 }
 
-ic-tooltip > ic-typography {
+/* ic-tooltip > ic-typography {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
+} */
 
 .data-type-number,
 .data-type-date {
@@ -222,7 +226,7 @@ ic-tooltip > ic-typography {
 .loading-empty {
   padding: var(--ic-space-xl) var(--ic-space-xxl);
   margin-top: var(--ic-space-xl);
-} 
+}
 
 .below-table {
   padding: var(--ic-space-xl) var(--ic-space-xxl);
@@ -286,4 +290,14 @@ ic-tooltip > ic-typography {
     display: flex;
     align-items: center;
   }
+}
+
+ic-typography {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+ic-typography.text-wrap {
+  white-space: normal;
 }
