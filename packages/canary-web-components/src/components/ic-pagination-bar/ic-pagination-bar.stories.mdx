@@ -111,23 +111,87 @@ To display the go to page control, set the `show-go-to-page-control` attribute t
 ></ic-pagination-bar>
 ```
 
-### Pagination type
+### Pagination range label type
 
-The pagination type can be set to two types:
+The pagination range label type can be set to two types:
 
 - `simple`: [default]: Display the total number of pages and the current page number.
 - `data`: Displays the total number of items and the items range.
 
-The example belows uses the `data` pagination type. The range is updated when the page is changed.
+The example belows uses the `data` pagination range label type. The range is updated when the page is changed.
 
 <Canvas withSource="none">
-  <Story name="Data pagination type" parameters={{ loki: { skip: true } }}>
+  <Story name="Pagination range label type" parameters={{ loki: { skip: true } }}>
     {html`<div style="height: 150px;">
       <ic-pagination-bar
         total-items="100"
         show-items-per-page-control="true"
         show-go-to-page-control="true"
-        pagination-type="data"
+        range-label-type="data"
+      ></ic-pagination-bar>
+    </div>`}
+  </Story>
+</Canvas>
+
+#### Pagination range label type code example
+
+```html
+<ic-pagination-bar
+  total-items="100"
+  show-items-per-page-control="true"
+  show-go-to-page-control="true"
+  range-label-type="data"
+></ic-pagination-bar>
+```
+
+### Pagination range item label
+
+'Items' can be changed to a custom label by setting the `range-item-label` attribute. Set `range-item-label` with a capitalized singular noun.
+The range label type must be set to `data` for the `range-item-label` attribute to take effect.
+
+<Canvas withSource="none">
+  <Story name="Pagination label type" parameters={{ loki: { skip: true } }}>
+    {html`<div style="height: 150px;">
+      <ic-pagination-bar
+        total-items="100"
+        show-items-per-page-control="true"
+        show-go-to-page-control="true"
+        range-label-type="data"
+        range-item-label="Image"
+      ></ic-pagination-bar>
+    </div>`}
+  </Story>
+</Canvas>
+
+
+#### Pagination range item label code example
+
+```html
+<ic-pagination-bar
+  total-items="100"
+  show-items-per-page-control="true"
+  show-go-to-page-control="true"
+  range-label-type="data"
+  range-item-label="Image"
+></ic-pagination-bar>
+```
+
+### Pagination type
+
+The pagination type can be set to two types:
+
+- `simple`: [default]: Display the current page as a label with back and next buttons.
+- `complex`: Displays all the page numbers as buttons with back and next buttons.
+
+The `complex` pagination type is useful when there are many pages to navigate through.
+
+<Canvas withSource="none">
+  <Story name="Pagination type" parameters={{ loki: { skip: true } }}>
+    {html`<div style="height: 150px;">
+      <ic-pagination-bar
+        total-items="100"
+        show-items-per-page-control="true"
+        type="complex"
       ></ic-pagination-bar>
     </div>`}
   </Story>
@@ -139,53 +203,7 @@ The example belows uses the `data` pagination type. The range is updated when th
 <ic-pagination-bar
   total-items="100"
   show-items-per-page-control="true"
-  show-go-to-page-control="true"
-  pagination-type="data"
-></ic-pagination-bar>
-```
-
-'Items' can be changed to a custom label by setting the `items-label` attribute. Set `item-label` with a capitalized singular noun.
-
-#### Item label code example
-
-```html
-<ic-pagination-bar
-  total-items="100"
-  show-items-per-page-control="true"
-  show-go-to-page-control="true"
-  pagination-type="data"
-  item-label="Image"
-></ic-pagination-bar>
-```
-
-### Pagination control
-
-The pagination control can be set to two types:
-
-- `simple`: [default]: Display the current page as a label with back and next buttons.
-- `complex`: Displays all the page numbers as buttons with back and next buttons.
-
-The `complex` pagination control is useful when there are many pages to navigate through.
-
-<Canvas withSource="none">
-  <Story name="Pagination control type" parameters={{ loki: { skip: true } }}>
-    {html`<div style="height: 150px;">
-      <ic-pagination-bar
-        total-items="100"
-        show-items-per-page-control="true"
-        pagination-control="complex"
-      ></ic-pagination-bar>
-    </div>`}
-  </Story>
-</Canvas>
-
-#### Pagination control type code example
-
-```html
-<ic-pagination-bar
-  total-items="100"
-  show-items-per-page-control="true"
-  pagination-control="complex"
+  type="complex"
 ></ic-pagination-bar>
 ```
 

@@ -135,17 +135,17 @@ const PaginationBar = () => (
 export default PaginationBar;
 ```
 
-### Pagination type
+### Pagination range label type
 
-The pagination type can be set to two types:
+The pagination range label type can be set to two types:
 
 - `simple`: [default]: Display the total number of pages and the current page number.
 - `data`: Displays the total number of items and the items range.
 
-The example belows uses the `data` pagination type. The range is updated when the page is changed.
+The example belows uses the `data` pagination range label type. The range is updated when the page is changed.
 
 <Canvas withSource="none">
-  <Story name="Data pagination type">
+  <Story name="Pagination range label type">
     <div style={{
       height: '150px'
     }}>
@@ -153,13 +153,13 @@ The example belows uses the `data` pagination type. The range is updated when th
         totalItems={100}
         showItemsPerPageControl
         showGoToPageControl
-        paginationType="data"
+        rangeLabelType="data"
       />
     </div>
   </Story>
 </Canvas>
 
-### Pagination type code example
+#### Pagination range label type code example
 
 ```jsx
 import * as React from "react";
@@ -170,58 +170,35 @@ const PaginationBar = () => (
     totalItems={100}
     showItemsPerPageControl
     showGoToPageControl
-    paginationType="data"
+    rangeLabelType="data"
   />
 );
 
 export default PaginationBar;
 ```
 
-'Items' can be changed to a custom label by setting the `itemLabel` prop. Set `itemLabel` with a capitalized singular noun.
+### Pagination range item label
 
-#### Item label code example
-
-```jsx
-import * as React from "react";
-import { IcPaginationBar } from '@ukic/canary-react';
-
-const PaginationBar = () => (
-  <IcPaginationBar
-    totalItems={100}
-    showItemsPerPageControl
-    showGoToPageControl
-    paginationType="data"
-    itemLabel="Image"
-  />
-);
-
-export default PaginationBar;
-```
-
-### Pagination control
-
-The pagination control can be set to two types:
-
-- `simple`: [default]: Display the current page as a label with back and next buttons.
-- `complex`: Displays all the page numbers as buttons with back and next buttons.
-
-The `complex` pagination control is useful when there are many pages to navigate through.
+'Items' can be changed to a custom label by setting the `rangeItemLabel` prop. Set `rangeItemLabel` with a capitalized singular noun.
+The range label type must be set to `data` for the `rangeItemLabel` prop to take effect.
 
 <Canvas withSource="none">
-  <Story name="Pagination control type">
+  <Story name="Pagination range item label">
     <div style={{
       height: '150px'
     }}>
       <IcPaginationBar
         totalItems={100}
         showItemsPerPageControl
-        paginationControl="complex"
+        showGoToPageControl
+        rangeLabelType="data"
+        rangeItemLabel="Image"
       />
     </div>
   </Story>
 </Canvas>
 
-#### Pagination control code example
+#### Pagination range item label code example
 
 ```jsx
 import * as React from "react";
@@ -231,7 +208,49 @@ const PaginationBar = () => (
   <IcPaginationBar
     totalItems={100}
     showItemsPerPageControl
-    paginationControl="complex"
+    showGoToPageControl
+    rangeLabelType="data"
+    rangeItemLabel="Image"
+  />
+);
+
+export default PaginationBar;
+```
+
+### Pagination type
+
+The pagination type can be set to two types:
+
+- `simple`: [default]: Display the current page as a label with back and next buttons.
+- `complex`: Displays all the page numbers as buttons with back and next buttons.
+
+The `complex` pagination type is useful when there are many pages to navigate through.
+
+<Canvas withSource="none">
+  <Story name="Pagination type">
+    <div style={{
+      height: '150px'
+    }}>
+      <IcPaginationBar
+        totalItems={100}
+        showItemsPerPageControl
+        type="complex"
+      />
+    </div>
+  </Story>
+</Canvas>
+
+#### Pagination type code example
+
+```jsx
+import * as React from "react";
+import { IcPaginationBar } from '@ukic/canary-react';
+
+const PaginationBar = () => (
+  <IcPaginationBar
+    totalItems={100}
+    showItemsPerPageControl
+    type="complex"
   />
 );
 
