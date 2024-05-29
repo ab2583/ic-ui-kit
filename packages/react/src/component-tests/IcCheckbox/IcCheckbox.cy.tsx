@@ -409,4 +409,18 @@ describe("A11y and visual regression tests", () => {
     cy.get(CHECKBOX_SELECTOR).eq(0).shadow().find(CONTAINER_SELECTOR).click();
     cy.get("@spyWinConsoleLog").should(HAVE_BEEN_CALLED_WITH, true);
   });
+
+  it("renders with hidden checkbox label", () => {
+    mount(
+      <IcCheckboxGroup label="Select your extras" hideLabel name="1">
+        <IcCheckbox value="valueName1" label="Extra shot (50p)" hideLabel />
+      </IcCheckboxGroup>
+    );
+
+    cy.compareSnapshot({
+      name: "hideCheckboxLabel",
+      testThreshold: DEFAULT_TEST_THRESHOLD,
+    });
+    cy.checkA11yWithWait(undefined, 1000);
+  });
 });
